@@ -1,0 +1,8 @@
+__pycache__
+.vscode/
+virtualenv/
+*.txt
+*.db
+*.json
+temp.py
+attendancenew.py

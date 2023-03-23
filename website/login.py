@@ -1,0 +1,92 @@
+from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError
+from .kiithomepage import get_incognito_context
+import json
+from pathlib import Path
+
+
+def block_aggressively(route):
+	if (route.request.resource_type in {'image', 'font', 'media', 'other'}):
+		route.abort()
+	else:
+		route.continue_()
+
+def is_valid_user(username: str, password: str) -> bool:
+    with sync_playwright() as p:
+        browser = p.chromium.launch() #headless=False
+        context = browser.new_context()
+        page = context.new_page()
+        page.route("**/*", block_aggressively)
+        page.goto('https://kiitportal.kiituniversity.net/irj/portal')
+        page.fill('#logonuidfield', username)
+        page.fill('#logonpassfield', password)
+        page.click('input[type = submit]')
+        try:
+            page.click('#navNodeAnchor_1_1', timeout=5000)
+        except PlaywrightTimeoutError:
+            return False
+        else:
+            return True
+
+def login(context, username, password):
+    page = context.new_page()
+    page.route("**/*", block_aggressively)
+    # page.on("request", lambda request: print(">>", request.method, request.url, request.resource_type))
+    # page.on("response", lambda response: print("<<", response.status, response.url))
+    # page.on("request", lambda request: print(">>", request.resource_type))
+    try:
+        page.goto('https://kiitportal.kiituniversity.net/irj/portal')
+        page.fill('#logonuidfield', username)
+        page.fill('#logonpassfield', password)
+        page.click('input[type = submit]')
+        page.click('#navNodeAnchor_1_1')
+    except PlaywrightTimeoutError:
+        return -1
+    return page
+
+
+
+
+
+
+# generate cookies from saved password
+def generate_cookies(username, password, context=None):
+    if context is None:
+        context = get_incognito_context()
+    page = context.new_page()
+    # login
+    page.goto('https://kiitportal.kiituniversity.net/irj/portal')
+    page.fill('#logonuidfield', username)
+    page.fill('#logonpassfield', password)
+    page.click('input[type = submit]')
+    try:
+        page.click('#navNodeAnchor_1_1', timeout=5000)
+        # page.wait_for_load_state('networkidle')
+    except PlaywrightTimeoutError:
+        return -1
+    else:
+        cookie_path = Path(f'./{username}.json')
+        passwd_path = Path(f'./{username}.txt')
+        with open(cookie_path, "w") as f:
+            f.write(json.dumps(context.cookies()))  # save new cookies
+        if passwd_path.is_file() == False:
+            with open(passwd_path, "w") as f:
+                f.write(password)  # save password if not saved
+
+        return page
+
+# try to login using existing cookies, or regenerate cookies if failed
+# return context with cookies loaded
+def try_login(context, username):
+    try:  # check if login succeeded
+        with open(f'{username}.json', 'r') as f:
+            context.add_cookies(json.loads(f.read()))
+        page = context.new_page()
+        page.goto('https://kiitportal.kiituniversity.net/irj/portal')
+        page.click('#navNodeAnchor_1_1', timeout=2500)
+    # if not succeeded regenerate cookies
+    except (FileNotFoundError, PlaywrightTimeoutError) as e:
+        with open(f'{username}.txt', "r") as f:
+            password = f.read()
+        return generate_cookies(username, password, context)
+    else:
+        return page

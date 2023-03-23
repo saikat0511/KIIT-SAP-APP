@@ -1,0 +1,15 @@
+{%extends "base.html"%} {%block title %}Login | KIIT SAP{%endblock%}
+{%block content %}
+<form method="POST">
+  <h3 align="center">Login</h3>
+  <div class="form-floating mb-3">
+    <input type="text" class="form-control" name="uid" placeholder="123456">
+    <label for="floatingInput">User ID</label>
+  </div>
+  <div class="form-floating mb-3">
+    <input type="password" class="form-control" name="password" placeholder="Password">
+    <label for="floatingPassword">Password</label>
+  </div>
+  <button type="submit" class="btn btn-primary">Login</button>
+</form>
+{%endblock%}

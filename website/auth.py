@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for, g
+from flask import Blueprint, render_template, request, redirect, url_for
 from .login import is_valid_user
 from .models import User
 from . import db
@@ -6,6 +6,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, logout_user, login_required, current_user
 
 auth = Blueprint('auth', __name__)
+
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
@@ -15,12 +16,9 @@ def login():
         uid = str(request.form.get('uid'))
         password = str(request.form.get('password'))
 
-        if len(password) == 0 or len(uid) == 0:
-            flash('Please provide both user ID and password', category='error')
-        elif uid.isdigit() == False:
-            flash('User ID should be numeric', category='error')
-        elif not is_valid_user(uid, password):
-            flash('Invalid user ID/password, or SAP is unreachable', category='error')
+        if is_valid_user(uid, password) == False:
+            message = 'Invalid User ID/Password, or SAP is unreachable'
+            return render_template('login.html', user=current_user, message=message, len=len(message))
         else:
             # add user to database if not present, then login
             user = User.query.filter_by(id=uid).first()
@@ -31,11 +29,11 @@ def login():
                 login_user(new_user, remember=True)
             else:
                 login_user(user, remember=True)
-            flash('Successfully logged in!', category='success')
-            print(User.query.get(password))
+            #print(User.query.get(password))
             return redirect(url_for('views.home'))
+    if request.method == 'GET':
+        return render_template('login.html', user=current_user, message="", len=0)
 
-    return render_template('login.html', user=current_user)
 
 @auth.route('/logout')
 @login_required

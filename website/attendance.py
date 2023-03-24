@@ -1,8 +1,23 @@
-import pandas as pd
 from .login import login
-import json
 from .ids import years, sessions
 from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError
+
+
+def restore_original_table_layout(frame):
+    frame.get_by_text('Attendance Details').click(button='right')
+    frame.get_by_text('User Settings').click()
+    if frame.get_by_text('Restore Original Order').is_visible():
+        frame.get_by_text('Restore Original Order').click()
+    return frame
+
+
+def unhide_image(frame):
+    frame.locator('Attendance Details').click(button='right')
+    frame.get_by_text('User Settings').click()
+    if frame.get_by_text('Restore Original Order').is_visible():
+        frame.get_by_text('Restore Original Order').click()
+    return frame
+
 
 def get_attendance(username, password, year, session):
     year_id = years[year]
@@ -24,12 +39,14 @@ def get_attendance(username, password, year, session):
             isolatedWorkArea = desktopInnerPage.frame_locator('#isolatedWorkArea')
 
             # restore original settings before scraping to get correct column order
-            isolatedWorkArea.get_by_text('Select Year & Session').click(button='right')
-            isolatedWorkArea.get_by_text('User Settings').click()
-            isolatedWorkArea.get_by_text('More...').click()
-            URLSPW = page.frame_locator('#URLSPW-0')
-            URLSPW.get_by_text('Reset User Settings for Running Application').click()
-
+            # isolatedWorkArea.get_by_text('Select Year & Session').click(button='right')
+            # isolatedWorkArea.get_by_text('User Settings').click()
+            # isolatedWorkArea.get_by_text('More...').click()
+            # URLSPW = page.frame_locator('#URLSPW-0')
+            # URLSPW.get_by_text('Reset User Settings for Running Application').click()
+            isolatedWorkArea = restore_original_table_layout(isolatedWorkArea)
+            page.wait_for_timeout(100)
+            
             isolatedWorkArea.locator('#WD52').click()
             isolatedWorkArea.locator(year_id).click() #select 2022-2023
             isolatedWorkArea.locator('#WD6E').click()

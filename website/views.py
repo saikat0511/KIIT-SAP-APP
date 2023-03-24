@@ -21,7 +21,13 @@ def home():
         return render_template('home_attendance.html', 
                                user=current_user, 
                                attendance=attendance, 
-                               len=len(attendance), 
+                               len=len(attendance['Subject']), 
                                col_list = list(attendance.keys()))
     elif request.method == 'GET':
         return render_template('home.html', user=current_user)
+
+
+@views.route('/', methods=['POST'])
+def is_valid_user():
+    if request.method == 'POST':
+        print(request.get_json())

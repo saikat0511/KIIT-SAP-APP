@@ -1,33 +1,25 @@
-from flask import Blueprint, render_template, request, flash
+from flask import Blueprint, render_template, request, jsonify
 from flask_login import login_required, current_user
 from .attendance import get_attendance
+from .models import User
 
 
 views = Blueprint('views', __name__)
 
-@views.route('/', methods=['GET', 'POST'])
+@views.route('/')
 @login_required
 def home():
-    if request.method == 'POST':
-        year = str(request.form.get('year'))
-        session = str(request.form.get('session'))
-        attendance = get_attendance(current_user.id, 
-                                    current_user.password, 
-                                    year, 
-                                    session)
-        if attendance == -1:
-            flash('SAP is unreachable', category='error')
-            return render_template('home.html', user=current_user)
-        return render_template('home_attendance.html', 
-                               user=current_user, 
-                               attendance=attendance, 
-                               len=len(attendance['Subject']), 
-                               col_list = list(attendance.keys()))
-    elif request.method == 'GET':
-        return render_template('home.html', user=current_user)
+    return render_template('home.html', user=current_user)
 
 
-@views.route('/', methods=['POST'])
-def is_valid_user():
-    if request.method == 'POST':
-        print(request.get_json())
+@views.route('/get_attendance', methods=['POST'])
+def get_attendance_response():
+    data = request.get_json()
+    user = User.query.filter_by(id=data.get('user')).first()
+    id = user.id
+    password = user.password
+    year = data.get('year')
+    session = data.get('session')
+    attendance = get_attendance(id, password, year, session)
+    #print(attendance)
+    return attendance

@@ -1,11 +1,12 @@
 {% extends "base.html" %} {% block title %}Home | KIIT SAP{% endblock %} {%
-block content%}
-<form method="POST">
-  <div class="row">
+block links %}
+<link rel="stylesheet" href="/static/styles/home.css" />
+{% endblock %} {% block content %}
+<form method="POST" id="attendanceForm">
+  <div class="row mb-3">
     <div class="col-sm-3 mt-2">
-      <select class="form-select" name="year">
+      <select class="form-select" name="year" id="year">
         <option selected disabled value="">Year</option>
-        <option value="2018">2018-2019</option>
         <option value="2019">2019-2020</option>
         <option value="2020">2020-2021</option>
         <option value="2021">2021-2022</option>
@@ -13,20 +14,56 @@ block content%}
       </select>
     </div>
     <div class="col-sm-3 mt-2">
-      <select class="form-select" name="session">
+      <select class="form-select" name="session" id="session">
         <option selected disabled value="">Session</option>
         <option value="Autumn">Autumn</option>
         <option value="Spring">Spring</option>
       </select>
     </div>
     <div class="col-sm-3 mt-2">
-      <button
-        type="submit"
-        class="btn btn-primary"
-      >
+      <button type="submit" id="submitAttendance" class="btn btn-primary">
         Submit
       </button>
     </div>
   </div>
 </form>
-{% block attendance_table %} {% endblock %} {% endblock %}
+
+<div
+  class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 row-cols-xxl-6"
+  id="attendanceRow"
+></div>
+{% endblock %} {% block script %}
+<script src="/static/scripts/home.js"></script>
+<script>
+  let user = "{{current_user.id}}";
+  let year = document.getElementById("year");
+  let session = document.getElementById("session");
+  let form = document.getElementById("attendanceForm");
+  form.addEventListener("submit", (event) => {
+    document.getElementById("submitAttendance").disabled = true;
+
+    //clear attendance content and insert spinner until real attendance loaded
+    insertSpinner();
+    document.getElementById("attendanceRow").innerHTML = "";
+
+    event.preventDefault();
+    let request_options = {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        user: user,
+        year: year.value,
+        session: session.value,
+      }),
+    };
+    fetch("get_attendance", request_options)
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+        insertAttendance(data);
+        document.getElementById("spinner").remove();
+      })
+      .catch((err) => console.log(err));
+  });
+</script>
+{% endblock %}

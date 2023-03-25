@@ -75,7 +75,7 @@
           </button>
         </div>
         <div style="height: 3.2rem">
-          <span id="errMsg" class="text-warning fw-light">
+          <span id="errMsg" class="text-warning fw-light user-select-none">
           {% if len > 0 %}
             {{message}}
           {% endif %}
@@ -93,9 +93,8 @@
         btn.prepend(span);
         btn.disabled = true;
       }
-      
+      document.getElementById("errMsg").innerText = "";
       function enableSubmit() {
-        document.getElementById("errMsg").innerText = "";
         let inputs = document.getElementsByClassName("required");
         let btn = document.getElementById("submit");
         let isValid = true;

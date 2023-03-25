@@ -19,7 +19,7 @@ def unhide_image(frame):
     return frame
 
 
-def get_attendance(username, password, year, session):
+def get_attendance(userid, password, year, session):
     year_id = years[year]
     session_id = sessions[session]
 
@@ -27,7 +27,7 @@ def get_attendance(username, password, year, session):
         browser = p.chromium.launch() #headless=False
         context = browser.new_context()
         context.set_default_timeout(50000)
-        page = login(context, username, password)
+        page = login(context, userid, password)
         if page == -1:
             return -1
 
@@ -86,5 +86,4 @@ def get_attendance(username, password, year, session):
             attendance['Total Percentage'].append(present_percent.nth(subject).all_inner_texts()[0])
             attendance['Faculty Name'].append(faculty_name.nth(subject).all_inner_texts()[0])
 
-        #attendance = pd.DataFrame(attendance).to_csv(index=False) # returns empty csv if connection issues
         return attendance

@@ -31,7 +31,7 @@ def login():
             #print(User.query.get(password))
             return redirect(url_for('views.home'))
     if request.method == 'GET':
-        return render_template('login.html', user=current_user, message="", len=0)
+        return render_template('login.html', user=current_user, message='', len=0)
 
 
 @auth.route('/logout/')

@@ -12,7 +12,7 @@ def block_aggressively(route):
 
 def is_valid_user(userid: str, password: str) -> bool:
     with sync_playwright() as p:
-        browser = p.chromium.launch() #headless=False
+        browser = p.chromium.launch(headless=False) #headless=False
         context = browser.new_context()
         page = context.new_page()
         page.route("**/*", block_aggressively)
@@ -20,12 +20,11 @@ def is_valid_user(userid: str, password: str) -> bool:
         page.fill('#logonuidfield', userid)
         page.fill('#logonpassfield', password)
         page.click('input[type = submit]')
-        try:
-            page.click('#navNodeAnchor_1_1', timeout=5000)
-        except PlaywrightTimeoutError:
-            return False
-        else:
+        page.wait_for_load_state('networkidle')
+        if page.locator('#navNodeAnchor_1_1').is_visible():
             return True
+        else:
+            return False
 
 def login(context, userid, password):
     page = context.new_page()

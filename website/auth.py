@@ -7,7 +7,7 @@ from flask_login import login_user, logout_user, login_required, current_user
 auth = Blueprint('auth', __name__)
 
 
-@auth.route('/login', methods=['GET', 'POST'])
+@auth.route('/login/', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('views.home'))
@@ -34,7 +34,7 @@ def login():
         return render_template('login.html', user=current_user, message="", len=0)
 
 
-@auth.route('/logout')
+@auth.route('/logout/')
 @login_required
 def logout():
     User.query.filter_by(id=current_user.get_id()).delete()

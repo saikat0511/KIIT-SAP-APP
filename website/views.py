@@ -12,7 +12,7 @@ def home():
     return render_template('home.html', user=current_user)
 
 
-@views.route('/get_attendance', methods=['POST'])
+@views.route('/get_attendance/', methods=['POST'])
 def get_attendance_response():
     data = request.get_json()
     user = User.query.filter_by(id=data.get('user')).first()
@@ -22,4 +22,4 @@ def get_attendance_response():
     session = data.get('session')
     attendance = get_attendance(id, password, year, session)
     #print(attendance)
-    return attendance
+    return jsonify(attendance)

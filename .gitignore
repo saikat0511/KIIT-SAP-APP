@@ -1,6 +1,7 @@
 __pycache__
 .vscode/
 virtualenv/
+.flash_secret
 *.txt
 *.db
 *.json

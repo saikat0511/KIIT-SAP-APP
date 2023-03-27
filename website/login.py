@@ -12,7 +12,7 @@ def block_aggressively(route):
 
 def is_valid_user(userid: str, password: str) -> bool:
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=False) #headless=False
+        browser = p.chromium.launch() #headless=False
         context = browser.new_context()
         page = context.new_page()
         page.route("**/*", block_aggressively)

@@ -2,7 +2,6 @@ __pycache__
 .vscode/
 virtualenv/
 .flask_secret
-*.txt
 *.db
 *.json
 temp.py

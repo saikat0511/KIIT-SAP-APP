@@ -29,17 +29,12 @@ def is_valid_user(userid: str, password: str) -> bool:
 def login(context, userid, password):
     page = context.new_page()
     page.route("**/*", block_aggressively)
-    # page.on("request", lambda request: print(">>", request.method, request.url, request.resource_type))
-    # page.on("response", lambda response: print("<<", response.status, response.url))
-    # page.on("request", lambda request: print(">>", request.resource_type))
-    try:
-        page.goto('https://kiitportal.kiituniversity.net/irj/portal')
-        page.fill('#logonuidfield', userid)
-        page.fill('#logonpassfield', password)
-        page.click('input[type = submit]')
-        page.click('#navNodeAnchor_1_1')
-    except PlaywrightTimeoutError:
-        return -1
+
+    page.goto('https://kiitportal.kiituniversity.net/irj/portal')
+    page.fill('#logonuidfield', userid)
+    page.fill('#logonpassfield', password)
+    page.click('input[type = submit]')
+    page.click('#navNodeAnchor_1_1')
     return page
 
 
